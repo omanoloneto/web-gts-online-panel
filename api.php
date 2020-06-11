@@ -10,23 +10,26 @@
 
 	include "class/Connection.php";
 
+	$dataGet = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+	$dataPost = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
 	$settings_table = "settings";
 	$table = "gts";
 	
-	$version = "2.0.2";
+	$version = "2.0.3";
 	$default_message = "GTS, Version: $version";
 
 	$conn = new Connection();
 	$mysqli = $conn->open();
 	
-	if (!isset($_POST["action"]))
+	if (!isset($dataPost["action"]))
 	{
 		die($default_message);
 	}
 	else
 	{
-		$action = $_POST["action"];
-		$game = $_GET["i"];
+		$action = $dataPost["action"];
+		$game = $dataGet["i"];
 		$query = $mysqli->query("UPDATE jogos SET num_acessos = num_acessos + 1 WHERE id = $game");
 	}
 	
@@ -45,7 +48,7 @@
 	}
 	elseif ($action == "setOnlineID") #### Tested, Works
 	{
-		$id = $_POST["id"];
+		$id = $dataPost["id"];
 		$query = $mysqli->query("UPDATE settings SET total_ids = $id WHERE id = 0");
 		if ($query != false)
 		{
@@ -58,7 +61,7 @@
 	}
 	elseif ($action == "hasPokemonUploaded") #### Tested, Works
 	{
-		$id = $_POST["id"];
+		$id = $dataPost["id"];
 		$query = $mysqli->query("SELECT id FROM gts WHERE id = $id AND game = $game");
 		if ($query != false)
 		{
@@ -76,7 +79,7 @@
 	}
 	elseif ($action == "setTaken") #### Tested, Works
 	{
-		$id = $_POST["id"];
+		$id = $dataPost["id"];
 		
 		$query = $mysqli->query("UPDATE gts SET taken = 1 WHERE id = $id AND game = $game");
 		if ($query != false)
@@ -86,7 +89,7 @@
 	}
 	elseif ($action == "isTaken") #### Tested, Works
 	{
-		$id = $_POST["id"];
+		$id = $dataPost["id"];
 		
 		$query = $mysqli->query("SELECT taken FROM gts WHERE id = $id AND game = $game");
 		if ($query != false)
@@ -109,15 +112,15 @@
 	}
 	elseif ($action == "uploadPokemon") #### Tested, Works
 	{
-		$id = $_POST["id"];
-		$pokemon = $_POST["pokemon"];
-		$species = $_POST["species"];
-		$level = $_POST["level"];
-		$gender = $_POST["gender"];
-		$wspecies = $_POST["Wspecies"];
-		$wlevelmin = $_POST["WlevelMin"];
-		$wlevelmax = $_POST["WlevelMax"];
-		$wgender = $_POST["Wgender"];
+		$id = $dataPost["id"];
+		$pokemon = $dataPost["pokemon"];
+		$species = $dataPost["species"];
+		$level = $dataPost["level"];
+		$gender = $dataPost["gender"];
+		$wspecies = $dataPost["Wspecies"];
+		$wlevelmin = $dataPost["WlevelMin"];
+		$wlevelmax = $dataPost["WlevelMax"];
+		$wgender = $dataPost["Wgender"];
 		
 		$query = $mysqli->query("INSERT INTO gts (id, pokemon, species, level, gender, wanted_species, wanted_min_level,
 		wanted_max_level, wanted_gender, game) VALUES ($id, '$pokemon', $species, $level, $gender, $wspecies, $wlevelmin, $wlevelmax, $wgender, $game)") or die(mysqli_error());
@@ -134,8 +137,8 @@
 	}
 	elseif ($action == "uploadNewPokemon") #### Tested, Works
 	{
-		$id = $_POST["id"];
-		$pokemon = $_POST["pokemon"];
+		$id = $dataPost["id"];
+		$pokemon = $dataPost["pokemon"];
 		
 		$query = $mysqli->query("UPDATE gts SET pokemon = '$pokemon' WHERE id = $id AND game = $game");
 		if ($query != false)
@@ -149,7 +152,7 @@
 	}
 	elseif ($action == "downloadPokemon") #### Tested, Works
 	{
-		$id = $_POST["id"];
+		$id = $dataPost["id"];
 		
 		$query = $mysqli->query("SELECT pokemon FROM gts WHERE id = $id AND game = $game");
 		if ($query != false)
@@ -167,7 +170,7 @@
 	}
 	elseif ($action == "downloadWantedData") #### Not Tested, Should Work
 	{
-		$id = $_POST["id"];
+		$id = $dataPost["id"];
 		
 		$query = $mysqli->query("SELECT * FROM gts WHERE id = $id AND game = $game");
 		if ($query != false)
@@ -189,8 +192,8 @@
 	}
 	elseif ($action == "deletePokemon") #### Tested, Works
 	{
-		$id = $_POST["id"];
-		$withdraw = $_POST["withdraw"];
+		$id = $dataPost["id"];
+		$withdraw = $dataPost["withdraw"];
 		if ($withdraw == "y")
 		{
 			$query = $mysqli->query("SELECT taken FROM gts WHERE id = $id AND game = $game");
@@ -220,11 +223,11 @@
 	}
 	elseif ($action == "getPokemonList") #### Tested, Works
 	{
-		$species = $_POST["species"];
-		$levelMin = $_POST["levelMin"];
-		$levelMax = $_POST["levelMax"];
-		$gender = $_POST["gender"];
-		$id = $_POST["id"];
+		$species = $dataPost["species"];
+		$levelMin = $dataPost["levelMin"];
+		$levelMax = $dataPost["levelMax"];
+		$gender = $dataPost["gender"];
+		$id = $dataPost["id"];
 		
 		if ($gender != -1)
 		{
@@ -256,10 +259,10 @@
 	}
 	elseif ($action == "getPokemonListFromWanted") #### Not Tested, should work
 	{
-		$species = $_POST["species"];
-		$level = $_POST["level"];
-		$gender = $_POST["gender"];
-		$id = $_POST["id"];
+		$species = $dataPost["species"];
+		$level = $dataPost["level"];
+		$gender = $dataPost["gender"];
+		$id = $dataPost["id"];
 		
 		$query = $mysqli->query("SELECT * FROM gts WHERE id != $id && wanted_species = $species && wanted_max_level >= $level && wanted_min_level <= $level &&
 		(wanted_gender = $gender || wanted_gender = -1) && taken = 0 AND game = $game") or die(mysqli_error());
